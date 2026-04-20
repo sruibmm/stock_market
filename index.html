@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>صوتك - تواصل صوتي آمن</title>
+  <link rel="icon" href="image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔊</text></svg>" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Tajawal', sans-serif;
+    }
+    body {
+      background: #0a0a0a;
+      color: #f0f0f0;
+      line-height: 1.7;
+      min-height: 100vh;
+      padding-bottom: 80px;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(0, 191, 255, 0.06) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(74, 0, 224, 0.05) 0%, transparent 40%);
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      position: relative;
+    }
+    h1, h2 {
+      color: #00bfff;
+      font-size: 1.7rem;
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-shadow: 0 0 10px rgba(0, 191, 255, 0.4),
+                   0 0 20px rgba(0, 191, 255, 0.2);
+      letter-spacing: -0.5px;
+      position: relative;
+      display: inline-block;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(to right, transparent, #00bfff, transparent);
+      box-shadow: 0 0 8px rgba(0, 191, 255, 0.5);
+    }
+    .welcome {
+      font-size: 1.25rem;
+      color: #aaa;
+      margin: 8px 0 20px;
+      text-align: center;
+      font-weight: 400;
+    }
+    .btn {
+      display: block;
+      width: 85%;
+      max-width: 320px;
+      margin: 18px auto;
+      padding: 15px 20px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      background: rgba(0, 191, 255, 0.15);
+      border: 1px solid rgba(0, 191, 255, 0.3);
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(4px);
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.2), transparent);
+      transition: left 0.8s;
+    }
+    .btn:hover::before {
+      left: 100%;
+    }
+    .btn:hover {
+      background: rgba(0, 191, 255, 0.25);
+      border-color: #00bfff;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 191, 255, 0.25),
+                  0 0 20px rgba(0, 191, 255, 0.15);
+    }
+    .btn:active {
+      transform: translateY(1px);
+    }
+    .page {
+      display: none;
+      padding: 28px 25px;
+      background: rgba(20, 20, 20, 0.7);
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      margin-top: 20px;
+      border: 1px solid rgba(80, 80, 80, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 191, 255, 0.1);
+    }
+    .active {
+      display: block;
+      animation: fadeInUp 0.6s ease-out;
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .voice-help {
+      font-size: 0.95rem;
+      color: #ccc;
+      margin: 16px 0;
+      padding: 14px 18px;
+      background: rgba(0, 191, 255, 0.08);
+      border-radius: 12px;
+      text-align: right;
+      border: 1px solid rgba(0, 191, 255, 0.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .voice-help::before {
+      content: '📣';
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.1rem;
+      opacity: 0.6;
+    }
+    #stopBtn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 60px;
+      height: 60px;
+      background: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      box-shadow: 0 6px 15px rgba(211, 47, 47, 0.4),
+                  0 0 15px rgba(211, 47, 47, 0.5);
+      z-index: 1000;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 10px 0 rgba(211, 47, 47, 0.5); }
+      50% { box-shadow: 0 0 15px 3px rgba(211, 47, 47, 0.6); }
+      100% { box-shadow: 0 0 10px 0 rgba(211, 47, 47, 0.5); }
+    }
+    #stopBtn:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 20px 5px rgba(211, 47, 47, 0.7);
+    }
+    .friend-item, .request-item {
+      padding: 16px;
+      margin: 14px 0;
+      background: rgba(30, 30, 30, 0.6);
+      border-radius: 14px;
+      text-align: right;
+      border: 1px solid rgba(80, 80, 80, 0.3);
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    .friend-item:hover, .request-item:hover {
+      background: rgba(40, 40, 40, 0.8);
+      border-color: rgba(0, 191, 255, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    }
+    .status {
+      font-size: 0.9rem;
+      color: #888;
+      margin-top: 6px;
+    }
+    .online {
+      color: #00bfff;
+      font-weight: 600;
+      text-shadow: 0 0 5px rgba(0, 191, 255, 0.4);
+    }
+    #chatMessages {
+      height: 300px;
+      overflow-y: auto;
+      padding: 16px;
+      background: rgba(15, 15, 15, 0.7);
+      border-radius: 14px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(60, 60, 60, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scroll-behavior: smooth;
+    }
+    #chatMessages::-webkit-scrollbar {
+      width: 6px;
+    }
+    #chatMessages::-webkit-scrollbar-track {
+      background: rgba(20, 20, 20, 0.6);
+      border-radius: 10px;
+    }
+    #chatMessages::-webkit-scrollbar-thumb {
+      background: #00bfff;
+      border-radius: 10px;
+    }
+    .message {
+      max-width: 78%;
+      min-width: 60px;
+      padding: 14px 18px;
+      border-radius: 16px;
+      word-wrap: break-word;
+      font-size: 1rem;
+      line-height: 1.5;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+      white-space: pre-line;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+      display: block;
+    }
+    .sent {
+      background: rgba(0, 191, 255, 0.2);
+      color: white;
+      align-self: flex-end;
+      margin-left: auto;
+      border-bottom-left-radius: 6px;
+      border: 1px solid rgba(0, 191, 255, 0.3);
+    }
+    .sent::after {
+      content: '✓✓';
+      font-size: 0.8rem;
+      opacity: 0.6;
+      margin: 0 0 0 6px;
+    }
+    .received {
+      background: rgba(50, 50, 50, 0.6);
+      color: #f0f0f0;
+      align-self: flex-start;
+      margin-right: auto;
+      border-bottom-right-radius: 6px;
+      border: 1px solid rgba(100, 100, 100, 0.3);
+    }
+    .voice-message {
+      background: rgba(0, 191, 255, 0.15);
+      border: 1px solid rgba(0, 191, 255, 0.3);
+      color: #00bfff;
+      font-style: italic;
+      padding: 10px 14px;
+      border-radius: 10px;
+    }
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    input {
+      flex: 1;
+      padding: 14px;
+      border: 1px solid rgba(100, 100, 100, 0.4);
+      border-radius: 12px;
+      font-size: 1rem;
+      background: rgba(30, 30, 30, 0.7);
+      color: #f0f0f0;
+      backdrop-filter: blur(4px);
+      transition: all 0.3s ease;
+    }
+    input:focus {
+      outline: none;
+      border-color: #00bfff;
+      box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.2);
+    }
+    .record-btn {
+      width: 60px;
+      background: #00bfff;
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.4rem;
+      font-weight: bold;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0, 191, 255, 0.3);
+    }
+    .record-btn:hover {
+      background: #00d0ff;
+      transform: scale(1.1) translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 191, 255, 0.4);
+    }
+    .record-btn:active {
+      transform: scale(0.95);
+    }
+    .cert {
+      text-align: center;
+      font-family: 'Times New Roman', serif;
+      padding: 40px 30px;
+      border: 2px solid #00bfff;
+      margin: 30px auto;
+      max-width: 620px;
+      background: rgba(20, 20, 20, 0.8);
+      border-radius: 18px;
+      box-shadow: 0 15px 40px rgba(0, 191, 255, 0.15),
+                  0 0 30px rgba(0, 191, 255, 0.1);
+      color: #f0f0f0;
+      position: relative;
+      overflow: hidden;
+    }
+    .cert::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(to right, #00bfff, #4a00e0);
+    }
+    .cert h3 {
+      color: #00bfff;
+      margin-bottom: 15px;
+      font-size: 1.6rem;
+      text-shadow: 0 0 8px rgba(0, 191, 255, 0.3);
+    }
+    .cert p {
+      line-height: 2;
+      color: #ddd;
+      font-size: 1.1rem;
+    }
+    .cert strong {
+      color: #ff4081;
+    }
+  </style>
+</head>
+<body>
+  <button id="stopBtn" onclick="stopAll()">✖</button>
+  <div class="container">
+    <div id="home" class="page active">
+      <h1>صوتك</h1>
+      <p>تطبيق دردشة صوتي للمكفوفين</p>
+      <button class="btn" onclick="navigateTo('login')">تسجيل دخول</button>
+      <button class="btn" onclick="navigateTo('register')">مستخدم جديد</button>
+    </div>
+    <div id="login" class="page">
+      <h1>تسجيل الدخول</h1>
+      <div class="voice-help">قل اسمك للدخول</div>
+      <button class="btn" onclick="navigateTo('home')">العودة</button>
+    </div>
+    <div id="register" class="page">
+      <h1>إنشاء حساب جديد</h1>
+      <div class="voice-help">سيتم تسجيل بصمتك الصوتية 3 مرات</div>
+      <button class="btn" onclick="startVoiceRegistration()">ابدأ التسجيل</button>
+      <button class="btn" onclick="navigateTo('home')">العودة</button>
+    </div>
+    <div id="friends" class="page">
+      <h1>أصدقاؤك</h1>
+      <div class="welcome" id="welcomeUser"></div>
+      <div id="friendsList"></div>
+      <button class="btn" onclick="openAddFriend()">إضافة صديق</button>
+      <button class="btn" onclick="navigateTo('requests')">طلبات الصداقة</button>
+      <button class="btn" onclick="navigateTo('chat')">الدردشة</button>
+      <button class="btn" onclick="navigateTo('egov')">الحكومة</button>
+    </div>
+    <div id="addFriend" class="page">
+      <h1>أضف صديقًا</h1>
+      <input type="text" id="friendNameInput" placeholder="اسم الصديق الثنائي" />
+      <button class="btn" onclick="sendFriendRequest()">إرسال طلب</button>
+      <button class="btn" onclick="navigateTo('friends')">العودة</button>
+    </div>
+    <div id="requests" class="page">
+      <h1>طلبات الصداقة</h1>
+      <div id="requestsList"></div>
+      <button class="btn" onclick="navigateTo('friends')">العودة</button>
+    </div>
+    <div id="chat" class="page">
+      <h1>الدردشة</h1>
+      <div class="welcome" id="chatWelcome"></div>
+      <div id="chatMessages"></div>
+      <div class="input-group">
+        <input type="text" id="messageInput" placeholder="اكتب رسالة..." />
+        <button class="btn" onclick="sendMessage()">إرسال</button>
+      </div>
+      <button class="btn record-btn" onclick="toggleRecord()">●</button>
+      <button class="btn" onclick="startVoiceToText()">🎙️ حول الكلام إلى نص</button>
+      <button class="btn" onclick="navigateTo('friends')">الأصدقاء</button>
+    </div>
+    <div id="egov" class="page">
+      <h1>الحكومة الإلكترونية</h1>
+      <button class="btn" onclick="issueCertificate()">إصدار شهادة عدم محكومية</button>
+      <div id="certificateContainer" style="margin-top: 20px;"></div>
+      <button class="btn" onclick="navigateTo('friends')">العودة</button>
+    </div>
+    <div id="certificate" class="cert" style="display: none;">
+      <h3>شهادة عدم محكومية</h3>
+      <p>
+        وزارة العدل<br>
+        الإدارة العامة للسجل الجنائي<br><br>
+        اسم المواطن: <span id="certName">...</span><br>
+        الرقم الوطني: <span id="certId">1000200030</span><br>
+        التاريخ: <span id="certDate">...</span><br><br>
+        تُشهد هذه الشهادة بأن المذكور أعلاه <strong>لا يوجد له سجل جنائي</strong> مسجل.<br><br>
+        هذه الشهادة صادرة آليًا من النظام الإلكتروني، وتعتبر رسمية.<br>
+        التوقيع الرقمي: ✅
+      </p>
+    </div>
+  </div>
+
+  <audio id="successSound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQMCABAAZGF0YQAAAAA=" preload="auto"></audio>
+  <audio id="errorSound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQMCABAAZGF0YQAAAAgA" preload="auto"></audio>
+  <audio id="playedAudio" controls style="display: none;"></audio>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    // 🔐 تشفير مشترك بين الأصدقاء
+    function getSharedKey(user1Name, user2Name) {
+      const sortedNames = [user1Name, user2Name].sort().join('|');
+      return CryptoJS.SHA256(sortedNames).toString();
+    }
+
+    function encryptText(plainText, key) {
+      return CryptoJS.AES.encrypt(plainText, key).toString();
+    }
+
+    function decryptText(cipherText, key) {
+      try {
+        const bytes = CryptoJS.AES.decrypt(cipherText, key);
+        return bytes.toString(CryptoJS.enc.Utf8);
+      } catch (e) {
+        return "❌ تعذر فك التشفير";
+      }
+    }
+
+    function addMessageToChatLocal(text, isSent) {
+      const chat = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'message ' + (isSent ? 'sent' : 'received');
+      div.textContent = text;
+      chat.appendChild(div);
+      setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 100);
+      setTimeout(() => { if (chat.contains(div)) div.remove(); }, 30000);
+    }
+
+    // 🔥 إعدادات Firebase (بدون Storage)
+    const firebaseConfig = {
+      apiKey: "AIzaSyB7VNyOkqu7bUWFlEP1fqcImeQ1N9airLw",
+      authDomain: "voice-26-7-2025.firebaseapp.com",
+      projectId: "voice-26-7-2025",
+      messagingSenderId: "763296330240",
+      appId: "1:763296330240:web:6851139a5827ef2eef1ee5"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let currentUser = null;
+    let recognition = null;
+    let isVoiceActive = true;
+    let isRecording = false;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let currentChatFriend = null;
+    let isSpeaking = false;
+
+    const successSound = document.getElementById('successSound');
+    const errorSound = document.getElementById('errorSound');
+    const utterance = new SpeechSynthesisUtterance();
+    utterance.lang = 'ar-SA';
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+
+    // ❌ إيقاف كل شيء
+    function stopAll() {
+      window.speechSynthesis.cancel();
+      if (recognition) recognition.stop();
+      recognition = null;
+      isVoiceActive = !isVoiceActive;
+      if (isVoiceActive) {
+        speak("النظام مفعّل");
+        const activePage = document.querySelector('.page.active')?.id;
+        if (activePage) setTimeout(() => navigateTo(activePage), 500);
+      } else {
+        speak("النظام معطّل. اضغط للإعادة.");
+      }
+    }
+
+    // 🗣️ تحدث بنظام صوتي
+    function speak(text) {
+      if (!isVoiceActive) return;
+      window.speechSynthesis.cancel();
+      isSpeaking = true;
+      if (recognition) {
+        recognition.stop();
+        recognition = null;
+      }
+      utterance.text = text;
+      utterance.onend = () => {
+        isSpeaking = false;
+        setTimeout(() => {
+          if (isVoiceActive && !recognition && !isSpeaking) {
+            startVoiceControl();
+          }
+        }, 800);
+      };
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // 🔊 صوت نجاح أو خطأ
+    function playSound(type) {
+      const sound = type === 'success' ? successSound : errorSound;
+      sound.currentTime = 0;
+      sound.play().catch(() => {});
+    }
+
+    // 🧭 الانتقال بين الصفحات
+    function navigateTo(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(page).classList.add('active');
+      window.speechSynthesis.cancel();
+      setTimeout(() => {
+        if (isVoiceActive) describePage();
+
+        if (page === 'login') {
+          console.log("🔄 دخول إلى صفحة تسجيل الدخول");
+          window.speechSynthesis.cancel();
+          if (recognition) {
+            recognition.stop();
+            recognition = null;
+          }
+          isVoiceActive = true;
+          isSpeaking = false;
+
+          setTimeout(() => {
+            speak("من فضلك قل اسمك الكامل للدخول.");
+          }, 500);
+
+          setTimeout(() => {
+            startVoiceLogin();
+          }, 2000);
+        }
+      }, 600);
+    }
+
+    // 📣 وصف الصفحة
+    function describePage() {
+      const page = document.querySelector('.page.active');
+      if (!page || !isVoiceActive) return;
+      const title = page.querySelector('h1')?.textContent || "صفحة غير معروفة";
+      if (page.id === 'home') {
+        const buttons = Array.from(page.querySelectorAll('.btn'));
+        let instructions = `${title}. `;
+        buttons.forEach((btn, index) => {
+          const text = btn.textContent.trim();
+          instructions += `${index + 1}. ${text}. `;
+        });
+        instructions += "قل رقم الخيار أو اسمه لتنفيذه.";
+        speak(instructions);
+      } else {
+        speak(title);
+      }
+    }
+
+    // 🎤 بدء التحكم الصوتي
+    function startVoiceControl() {
+      if (!isVoiceActive || recognition || isSpeaking) return;
+      try {
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'ar-SA';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.onresult = (e) => {
+          const cmd = e.results[0][0].transcript.trim().toLowerCase();
+          handleCommand(cmd);
+        };
+        recognition.onerror = (event) => {
+          if (['no-speech', 'aborted', 'audio-capture'].includes(event.error)) {
+            setTimeout(startVoiceControl, 800);
+          }
+        };
+        recognition.onend = () => {
+          recognition = null;
+          if (isVoiceActive) setTimeout(startVoiceControl, 400);
+        };
+        recognition.start();
+      } catch (e) {
+        setTimeout(startVoiceControl, 2000);
+      }
+    }
+
+    // 🔄 العودة
+    function goBack() {
+      const map = { chat: 'friends', requests: 'friends', addFriend: 'friends', egov: 'friends' };
+      navigateTo(map[document.querySelector('.active')?.id] || 'home');
+    }
+
+    // ✅ فتح صفحة إضافة صديق
+    function openAddFriend() {
+      navigateTo('addFriend');
+    }
+
+    // 🧠 معالجة الأوامر الصوتية (جميع الأزرار)
+    function handleCommand(cmd) {
+      cmd = cmd.trim().toLowerCase();
+
+      // ✅ أمر: "أضف عمر" أو "أرسل طلب إلى نور"
+      if (cmd.startsWith('أضف ') || cmd.includes('أرسل طلب إلى')) {
+        const name = cmd.replace(/^(أضف |أرسل طلب إلى)/, '').trim();
+        if (name) {
+          sendFriendRequestByName(name);
+          return;
+        }
+      }
+
+      const commands = {
+        home: ['ابدأ', 'الرئيسية', 'الصفحة الرئيسية', 'ابدأ من جديد', 'الصفحة الرئيسيّة'],
+        login: ['تسجيل دخول', 'ادخل', 'سجل دخول', 'دخول', 'فتح الحساب'],
+        register: ['مستخدم جديد', 'إنشاء حساب', 'سجل جديد', 'حساب جديد', 'مستخدم جديد'],
+        friends: ['أصدقاء', 'قائمة الأصدقاء', 'أصدقائي', 'الأصدقاء', 'عرض الأصدقاء'],
+        addFriend: ['إضافة صديق', 'أضف صديق', 'إضافة', 'أضف', 'إضافة صديق جديد'],
+        requests: ['طلبات الصداقة', 'الطلبات', 'طلبات', 'عرض الطلبات', 'طلبات الأصدقاء'],
+        chat: ['الدردشة', 'افتح الدردشة', 'دردشة', 'شات', 'المحادثة'],
+        egov: ['الحكومة', 'الحكومة الإلكترونية', 'egov', 'خدمات حكومية', 'الخدمات'],
+        certificate: ['شهادة', 'إصدار شهادة', 'شهادة عدم محكومية', 'أصدر شهادة'],
+        sendMessage: ['إرسال', 'أرسل', 'أرسل الرسالة', 'أرسلها'],
+        voiceToText: ['حول الكلام إلى نص', 'نص من الصوت', 'حول إلى نص', 'استمع وانسخ'],
+        record: ['رسالة صوتية', 'سجل رسالة', 'تسجيل', 'ابدأ التسجيل', 'سجل'],
+        back: ['العودة', 'رجوع', 'ارجع', 'ارجع للخلف', 'عاود', 'السابقة'],
+        stop: ['إيقاف', 'توقف', 'ايقاف', 'كافي', 'بس', 'قف']
+      };
+
+      for (const [action, phrases] of Object.entries(commands)) {
+        if (phrases.some(phrase => cmd.includes(phrase))) {
+          switch (action) {
+            case 'home': navigateTo('home'); break;
+            case 'login': navigateTo('login'); break;
+            case 'register': navigateTo('register'); break;
+            case 'friends': navigateTo('friends'); break;
+            case 'addFriend': openAddFriend(); break;
+            case 'requests': navigateTo('requests'); break;
+            case 'chat': navigateTo('chat'); break;
+            case 'egov': navigateTo('egov'); break;
+            case 'certificate': issueCertificate(); break;
+            case 'sendMessage': sendMessage(); break;
+            case 'voiceToText': startVoiceToText(); break;
+            case 'record': toggleRecord(); break;
+            case 'back': goBack(); break;
+            case 'stop': stopAll(); break;
+          }
+          return;
+        }
+      }
+
+      if (isVoiceActive && !isSpeaking) {
+        speak("لم أفهم هذا الأمر. جرب قول: 'الدردشة' أو 'أصدقاء' أو 'أضف عمر'.");
+      }
+    }
+
+    // 👥 تحميل قائمة الأصدقاء
+    async function loadFriendsList() {
+      const list = document.getElementById('friendsList');
+      list.innerHTML = '<div>جاري التحميل...</div>';
+      try {
+        const snapshot = await db.collection('friends').where('userId', '==', currentUser.id).get();
+        if (snapshot.empty) {
+          list.innerHTML = '<div class="friend-item">لا يوجد أصدقاء بعد</div>';
+          return;
+        }
+        list.innerHTML = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const timeDiff = Date.now() - data.lastSeen;
+          let statusText = data.isOnline ? 'متصل الآن' : 
+            (timeDiff < 60000) ? `آخر ظهور: ${Math.floor(timeDiff/1000)} ثانية` :
+            (timeDiff < 3600000) ? `آخر ظهور: ${Math.floor(timeDiff/60000)} دقيقة` :
+            `آخر ظهور: ${Math.floor(timeDiff/3600000)} ساعة`;
+          const div = document.createElement('div');
+          div.className = 'friend-item';
+          div.innerHTML = `<div>${data.friendName}</div><div class="status ${data.isOnline ? 'online' : ''}">${statusText}</div>`;
+          div.onclick = () => {
+            currentChatFriend = data;
+            loadChatMessages(data.friendId);
+            navigateTo('chat');
+          };
+          list.appendChild(div);
+        });
+      } catch (error) {
+        list.innerHTML = '<div>خطأ في التحميل</div>';
+      }
+    }
+
+    // 📩 تحميل طلبات الصداقة (فقط المعلقة)
+    async function loadFriendRequests() {
+      const list = document.getElementById('requestsList');
+      list.innerHTML = '<div>جاري التحميل...</div>';
+      try {
+        const snapshot = await db.collection('friend_requests')
+          .where('receiverId', '==', currentUser.id)
+          .get();
+
+        if (snapshot.empty) {
+          list.innerHTML = '<div class="request-item">لا يوجد طلبات</div>';
+          return;
+        }
+
+        list.innerHTML = '';
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          
+          // ✅ فقط الطلبات المعلقة
+          if (data.status !== 'pending') return;
+
+          const div = document.createElement('div');
+          div.className = 'request-item';
+          div.innerHTML = `
+            <div>طلب من: ${data.senderName}</div>
+            <button onclick="acceptRequest('${doc.id}')">قبول</button>
+            <button onclick="rejectRequest('${doc.id}')">رفض</button>
+          `;
+          list.appendChild(div);
+        });
+      } catch (error) {
+        list.innerHTML = '<div>خطأ في التحميل</div>';
+      }
+    }
+
+    // ✅ بعد تسجيل الدخول
+    function afterLogin() {
+      loadFriendsList();
+      loadFriendRequests();
+      updateOnlineStatus(true);
+      setInterval(updateLastSeen, 10000);
+      navigateTo('friends');
+      setTimeout(startVoiceControl, 1000);
+    }
+
+    // 🎙️ تسجيل صوتي
+    function recordVoice(duration) {
+      return new Promise(async (resolve) => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          const mediaRecorder = new MediaRecorder(stream);
+          const audioChunks = [];
+          mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+          mediaRecorder.onstop = () => {
+            const blob = new Blob(audioChunks, { type: 'audio/webm' });
+            resolve(blob);
+          };
+          mediaRecorder.start();
+          setTimeout(() => {
+            mediaRecorder.stop();
+            stream.getTracks().forEach(track => track.stop());
+          }, duration);
+        } catch (e) {
+          resolve(null);
+        }
+      });
+    }
+
+    // 🔍 استخراج بصمة الصوت (باستخدام OfflineAudioContext فقط)
+    async function getAudioFingerprint(blob) {
+      const arrayBuffer = await blob.arrayBuffer();
+      const offlineContext = new OfflineAudioContext(1, 2048, 44100);
+      const audioBuffer = await offlineContext.decodeAudioData(arrayBuffer);
+      
+      const source = offlineContext.createBufferSource();
+      source.buffer = audioBuffer;
+
+      const analyser = offlineContext.createAnalyser();
+      analyser.fftSize = 2048;
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      source.connect(analyser);
+      analyser.connect(offlineContext.destination);
+      source.start();
+
+      await offlineContext.startRendering();
+      analyser.getByteFrequencyData(dataArray);
+
+      const fingerprint = [];
+      const start = Math.floor(bufferLength * 0.1);
+      const end = Math.floor(bufferLength * 0.7);
+      const step = Math.ceil((end - start) / 32);
+
+      for (let i = start; i < end; i += step) {
+        fingerprint.push(dataArray[i]);
+      }
+
+      while (fingerprint.length < 32) fingerprint.push(0);
+      return fingerprint.slice(0, 32);
+    }
+
+    // 🔢 حساب التشابه
+    function calculateSimilarity(f1, f2) {
+      let sum = 0;
+      const len = Math.min(f1.length, f2.length);
+      for (let i = 0; i < len; i++) {
+        sum += 1 - Math.abs(f1[i] - f2[i]) / 255;
+      }
+      return (sum / len) * 100;
+    }
+
+    // ✅ متوسط البصمات
+    function averageFingerprint(fingerprints) {
+      const avg = [];
+      const numSamples = fingerprints[0].length;
+      for (let i = 0; i < numSamples; i++) {
+        let sum = 0;
+        for (let j = 0; j < fingerprints.length; j++) {
+          sum += fingerprints[j][i];
+        }
+        avg[i] = Math.round(sum / fingerprints.length);
+      }
+      return avg;
+    }
+
+    // ✅ تسجيل بصمة الصوت 3 مرات (بدون Storage)
+    async function startVoiceRegistration() {
+      window.speechSynthesis.cancel();
+      if (recognition) recognition.stop();
+      recognition = null;
+
+      speak('نبدأ تسجيل بصمة صوتك. قل اسمك الكامل 3 مرات.');
+      await new Promise(resolve => { utterance.onend = resolve; });
+
+      const fingerprints = [];
+
+      for (let i = 1; i <= 3; i++) {
+        speak(`التسجيل ${i}. قل اسمك الآن.`);
+        await new Promise(resolve => { utterance.onend = resolve; });
+        const audioBlob = await recordVoice(5000);
+        if (!audioBlob) {
+          speak('فشل التسجيل. أعد المحاولة.');
+          i--;
+          continue;
+        }
+        const fingerprint = await getAudioFingerprint(audioBlob);
+        fingerprints.push(fingerprint);
+      }
+
+      const avgFingerprint = averageFingerprint(fingerprints);
+
+      const userDoc = await db.collection('users').add({
+        displayName: "مستخدم",
+        voiceFingerprint: JSON.stringify(avgFingerprint),
+        createdAt: new Date(),
+        isOnline: false,
+        lastSeen: Date.now()
+      });
+
+      const userId = userDoc.id;
+
+      speak('التسجيل ناجح. الآن، من فضلك قل اسمك فقط.');
+      await new Promise(resolve => { utterance.onend = resolve; });
+
+      let rawName = await listenOnce(5000);
+      let displayName = "مستخدم";
+
+      if (rawName) {
+        displayName = rawName
+          .trim()
+          .replace(/(اسمي|أنا|يُدعى|هو|أنا هو|أنا اسمي)\s*/i, '')
+          .replace(/\s*(من فضلك|الآن|قل اسمك|ما هو اسمك).*$/i, '')
+          .trim();
+        displayName = displayName.split(' ').slice(0, 2).join(' ');
+        if (displayName.length < 2) displayName = "مستخدم";
+      } else {
+        speak("لم نسمع اسمك. سيتم استخدام 'مستخدم'.");
+      }
+
+      await db.collection('users').doc(userId).update({ displayName });
+      currentUser = { id: userId, name: displayName };
+      document.getElementById('welcomeUser').textContent = `أهلاً، ${displayName}`;
+      document.getElementById('chatWelcome').textContent = `دردشة مع: ${displayName}`;
+      playSound('success');
+      speak(`تم التسجيل بنجاح باسم ${displayName}`);
+      afterLogin();
+    }
+
+    // 🔐 تسجيل الدخول باستخدام بصمة الصوت
+    async function startVoiceLogin() {
+      window.speechSynthesis.cancel();
+      if (recognition) recognition.stop();
+      recognition = null;
+
+      speak("من فضلك قل اسمك الكامل للدخول. لديك 5 ثواني.");
+      await new Promise(resolve => { utterance.onend = resolve; });
+
+      const name = await listenOnce(5000);
+      if (!name) {
+        speak("لم نسمعك. تأكد من السماح بالوصول إلى الميكروفون وحاول مرة أخرى.");
+        return;
+      }
+
+      const cleanName = name.trim().replace(/\s+/g, ' ');
+      const snapshot = await db.collection('users').where('displayName', '==', cleanName).limit(1).get();
+
+      if (!snapshot.empty) {
+        const doc = snapshot.docs[0];
+        const userData = doc.data();
+        const userId = doc.id;
+
+        const testBlob = await recordVoice(5000);
+        if (!testBlob) {
+          speak("فشل تسجيل الصوت.");
+          return;
+        }
+
+        const testFingerprint = await getAudioFingerprint(testBlob);
+        const savedFingerprint = JSON.parse(userData.voiceFingerprint);
+        const similarity = calculateSimilarity(testFingerprint, savedFingerprint);
+
+        if (similarity >= 85) {
+          currentUser = { id: userId, name: cleanName };
+          document.getElementById('welcomeUser').textContent = `أهلاً، ${cleanName}`;
+          document.getElementById('chatWelcome').textContent = `دردشة مع: ${cleanName}`;
+          playSound('success');
+          speak(`تم التعرف على بصمتك الصوتية. مرحباً ${cleanName}`);
+          afterLogin();
+        } else {
+          speak(`بصمة الصوت غير مطابقة. التشابه كان ${Math.round(similarity)}%.`);
+        }
+      } else {
+        speak(`الاسم ${cleanName} غير مسجل. جرب التسجيل كمستخدم جديد.`);
+      }
+    }
+
+    // 🎙️ الاستماع لمرة واحدة
+    function listenOnce(time) {
+      return new Promise((resolve) => {
+        if (recognition) recognition.stop();
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          speak("المتصفح لا يدعم التعرف.");
+          resolve('');
+          return;
+        }
+        const rec = new SpeechRecognition();
+        rec.lang = 'ar-SA';
+        rec.maxAlternatives = 1;
+        rec.continuous = false;
+        let transcript = '';
+        rec.onresult = (e) => { transcript = e.results[0][0].transcript.trim(); };
+        rec.onend = () => { resolve(transcript || ''); };
+        rec.onerror = () => resolve('');
+        try {
+          rec.start();
+        } catch (e) {
+          resolve('');
+        }
+        setTimeout(() => { if (typeof rec.stop === 'function') rec.stop(); }, time);
+      });
+    }
+
+    // 💬 تحميل الرسائل
+    async function loadChatMessages(friendId) {
+      const chat = document.getElementById('chatMessages');
+      chat.innerHTML = '';
+      const messagesRef = db.collection('messages')
+        .where('chatId', 'in', [`${currentUser.id}_${friendId}`, `${friendId}_${currentUser.id}`])
+        .orderBy('timestamp');
+      messagesRef.onSnapshot(snapshot => {
+        snapshot.docChanges().forEach(change => {
+          if (change.type === 'added') {
+            const msg = change.doc.data();
+            if (msg.sentLocally) return;
+            addMessageToChat(msg);
+          }
+        });
+      });
+    }
+
+    // 📥 إضافة رسالة
+    function addMessageToChat(msg) {
+      const chat = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'message ' + (msg.senderId === currentUser.id ? 'sent' : 'received');
+      if (msg.type === 'text') div.textContent = msg.content;
+      else if (msg.type === 'encrypted-text') {
+        div.textContent = "جاري فك التشفير...";
+        setTimeout(async () => {
+          const sharedKey = getSharedKey(currentUser.name, msg.senderName);
+          div.textContent = decryptText(msg.content, sharedKey);
+        }, 0);
+      } else {
+        div.textContent = "رسالة صوتية";
+      }
+      chat.appendChild(div);
+      setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 100);
+    }
+
+    // 📤 إرسال رسالة
+    async function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+      if (!text || !currentChatFriend) return;
+      const sharedKey = getSharedKey(currentUser.name, currentChatFriend.friendName);
+      const encryptedContent = encryptText(text, sharedKey);
+      addMessageToChatLocal(text, true);
+      await db.collection('messages').add({
+        chatId: `${currentUser.id}_${currentChatFriend.friendId}`,
+        senderId: currentUser.id,
+        senderName: currentUser.name,
+        content: encryptedContent,
+        type: 'encrypted-text',
+        timestamp: Date.now(),
+        sentLocally: true
+      });
+      input.value = '';
+      playSound('success');
+    }
+
+    // 🎤 حول الكلام إلى نص
+    async function startVoiceToText() {
+      window.speechSynthesis.cancel();
+      if (recognition) recognition.stop();
+      recognition = null;
+      isVoiceActive = false;
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        isVoiceActive = true;
+        setTimeout(startVoiceControl, 100);
+        return;
+      }
+
+      const localRecognition = new SpeechRecognition();
+      localRecognition.lang = 'ar-SA';
+      localRecognition.maxAlternatives = 1;
+      localRecognition.continuous = false;
+
+      let finalTranscript = '';
+
+      localRecognition.onresult = (e) => {
+        finalTranscript = e.results[0][0].transcript.trim();
+      };
+
+      localRecognition.onerror = () => {};
+
+      localRecognition.onend = () => {
+        if (finalTranscript) {
+          const correctedText = correctSpeech(finalTranscript);
+          document.getElementById('messageInput').value = correctedText;
+        }
+        isVoiceActive = true;
+        if (!recognition && !isSpeaking) startVoiceControl();
+      };
+
+      try {
+        localRecognition.start();
+        setTimeout(() => { if (typeof localRecognition.stop === 'function') localRecognition.stop(); }, 5000);
+      } catch (e) {
+        isVoiceActive = true;
+        if (!recognition && !isSpeaking) startVoiceControl();
+      }
+    }
+
+    // ✏️ تصحيح الكلام
+    function correctSpeech(text) {
+      const corrections = {
+        'صوتك': 'صوتك',
+        'يوسف': 'يوسف',
+        'احمد': 'أحمد',
+        'محمد': 'محمد',
+        'مرحبا': 'مرحباً',
+        'كيف حالك': 'كيف حالك؟',
+        'السلام عليكم': 'السلام عليكم ورحمة الله',
+        'بخير الحمد لله': 'بخير، الحمد لله',
+        'شكرا': 'شكراً',
+        'تمام': 'تمام',
+        'انا': 'أنا',
+        'عندي': 'عندي',
+        'ايش': 'ماذا',
+        'وش': 'ماذا',
+        'وش اخبارك': 'كيف أخبارك؟',
+        'كل شي': 'كل شيء',
+        'كل شي تمام': 'كل شيء تمام'
+      };
+      let corrected = text;
+      Object.keys(corrections).forEach(key => {
+        const regex = new RegExp(`\\b${key}\\b`, 'gi');
+        corrected = corrected.replace(regex, corrections[key]);
+      });
+      if (!corrected.endsWith('.') && !corrected.endsWith('!') && !corrected.endsWith('?')) {
+        corrected += ' ';
+      }
+      return corrected;
+    }
+
+    // 📄 إصدار شهادة
+    function issueCertificate() {
+      const cert = document.getElementById('certificate');
+      const container = document.getElementById('certificateContainer');
+      container.innerHTML = '';
+      cert.style.display = 'block';
+      document.getElementById('certName').textContent = currentUser?.name || 'مستخدم';
+      document.getElementById('certDate').textContent = new Date().toISOString().split('T')[0];
+      container.appendChild(cert);
+      speak('تم إصدار الشهادة.');
+    }
+
+    // ✅ إرسال طلب صديق
+    async function sendFriendRequest() {
+      const input = document.getElementById('friendNameInput');
+      const name = input.value.trim();
+      if (!name) {
+        speak("من فضلك اكتب اسم الصديق.");
+        return;
+      }
+
+      const userSnapshot = await db.collection('users').where('displayName', '==', name).limit(1).get();
+      if (userSnapshot.empty) {
+        speak(`الاسم ${name} غير مسجل. تأكد من الاسم وحاول مرة أخرى.`);
+        return;
+      }
+
+      const friendDoc = userSnapshot.docs[0];
+      const friendId = friendDoc.id;
+      const friendName = friendDoc.data().displayName;
+
+      // تحقق من طلب مسبق
+      const existingRequest = await db.collection('friend_requests')
+        .where('senderId', '==', currentUser.id)
+        .where('receiverId', '==', friendId)
+        .where('status', '==', 'pending')
+        .limit(1)
+        .get();
+
+      if (!existingRequest.empty) {
+        speak(`لقد أرسلت طلب صداقة سابقًا إلى ${friendName}.`);
+        navigateTo('friends');
+        return;
+      }
+
+      // تحقق من أن المستخدم ليس صديقًا بالفعل
+      const existingFriend = await db.collection('friends')
+        .where('userId', '==', currentUser.id)
+        .where('friendId', '==', friendId)
+        .limit(1)
+        .get();
+
+      if (!existingFriend.empty) {
+        speak(`لقد أنت و ${friendName} أصدقاء بالفعل.`);
+        navigateTo('friends');
+        return;
+      }
+
+      // إرسال الطلب
+      await db.collection('friend_requests').add({
+        senderId: currentUser.id,
+        senderName: currentUser.name,
+        receiverId: friendId,
+        receiverName: friendName,
+        status: 'pending',
+        timestamp: Date.now()
+      });
+
+      speak(`تم إرسال طلب صداقة إلى ${friendName}`);
+      input.value = '';
+      navigateTo('friends');
+    }
+
+    // ✅ إرسال طلب صديق بالاسم مباشرة (بصوتيًا)
+    async function sendFriendRequestByName(name) {
+      if (!name) return;
+
+      const userSnapshot = await db.collection('users').where('displayName', '==', name).limit(1).get();
+      if (userSnapshot.empty) {
+        speak(`الاسم ${name} غير مسجل.`);
+        return;
+      }
+
+      const friendDoc = userSnapshot.docs[0];
+      const friendId = friendDoc.id;
+      const friendName = friendDoc.data().displayName;
+
+      const existingRequest = await db.collection('friend_requests')
+        .where('senderId', '==', currentUser.id)
+        .where('receiverId', '==', friendId)
+        .where('status', '==', 'pending')
+        .limit(1)
+        .get();
+
+      if (!existingRequest.empty) {
+        speak(`لقد أرسلت طلبًا سابقًا إلى ${friendName}.`);
+        return;
+      }
+
+      const existingFriend = await db.collection('friends')
+        .where('userId', '==', currentUser.id)
+        .where('friendId', '==', friendId)
+        .limit(1)
+        .get();
+
+      if (!existingFriend.empty) {
+        speak(`أنت و ${friendName} أصدقاء بالفعل.`);
+        return;
+      }
+
+      await db.collection('friend_requests').add({
+        senderId: currentUser.id,
+        senderName: currentUser.name,
+        receiverId: friendId,
+        receiverName: friendName,
+        status: 'pending',
+        timestamp: Date.now()
+      });
+
+      speak(`تم إرسال طلب صداقة إلى ${friendName}`);
+    }
+
+    // ✅ قبول طلب صديق
+    async function acceptRequest(requestId) {
+      try {
+        const requestDoc = await db.collection('friend_requests').doc(requestId).get();
+        if (!requestDoc.exists) {
+          speak("الطلب غير موجود أو تم معالجته مسبقًا.");
+          loadFriendRequests();
+          return;
+        }
+
+        const data = requestDoc.data();
+        const senderId = data.senderId;
+        const senderName = data.senderName;
+
+        // ✅ إضافة الصديق في كلا الاتجاهين
+        await db.collection('friends').add({
+          userId: currentUser.id,
+          friendId: senderId,
+          friendName: senderName,
+          isOnline: false,
+          lastSeen: Date.now()
+        });
+
+        await db.collection('friends').add({
+          userId: senderId,
+          friendId: currentUser.id,
+          friendName: currentUser.name,
+          isOnline: false,
+          lastSeen: Date.now()
+        });
+
+        // ✅ تحديث حالة الطلب
+        await db.collection('friend_requests').doc(requestId).update({ status: 'accepted' });
+
+        speak(`تم قبول طلب الصداقة من ${senderName}`);
+        loadFriendRequests(); // إعادة تحميل القائمة
+      } catch (error) {
+        speak("حدث خطأ أثناء قبول الطلب.");
+        console.error("Error accepting friend request:", error);
+      }
+    }
+
+    // ✅ رفض طلب صديق
+    async function rejectRequest(requestId) {
+      try {
+        await db.collection('friend_requests').doc(requestId).update({ status: 'rejected' });
+        speak("تم رفض طلب الصداقة.");
+        loadFriendRequests(); // إعادة تحميل القائمة
+      } catch (error) {
+        speak("حدث خطأ أثناء رفض الطلب.");
+        console.error("Error rejecting friend request:", error);
+      }
+    }
+
+    // 🟢 تحديث الحالة
+    function updateOnlineStatus(isOnline) {
+      if (currentUser) {
+        db.collection('users').doc(currentUser.id).update({ isOnline, lastSeen: Date.now() });
+      }
+    }
+
+    // 🕒 تحديث آخر ظهور
+    function updateLastSeen() {
+      if (currentUser && isVoiceActive) {
+        db.collection('users').doc(currentUser.id).update({ lastSeen: Date.now() });
+      }
+    }
+
+    // 🚀 عند التحميل
+    window.onload = () => {
+      speak('تم تحميل النظام.');
+      setTimeout(() => navigateTo('home'), 2000);
+    };
+
+    // 🛑 عند الخروج
+    window.onbeforeunload = () => {
+      updateOnlineStatus(false);
+    };
+  </script>
+</body>
+</html>
